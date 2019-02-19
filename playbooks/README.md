@@ -1,4 +1,4 @@
-# Deploying a, developer/production-ready Redapple website with Ansible
+# Deploying a, production-ready Redapple
 
 ## Supported Platforms
 	- Debian 8, 9
