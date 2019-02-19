@@ -1,0 +1,13 @@
+[Unit]
+After={{ zinuit_name }}-metel-web.service
+Description="{{ zinuit_name }}-node-socketio"
+PartOf={{ zinuit_name }}-web.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ node }} {{ zinuit_dir }}/apps/metel/socketio.js
+StandardOutput=file:{{ zinuit_dir }}/logs/node-socketio.log
+StandardError=file:{{ zinuit_dir }}/logs/node-socketio.error.log
+WorkingDirectory={{ zinuit_dir }}

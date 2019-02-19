@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+Wants={{ zinuit_name }}-metel-web.service {{ zinuit_name }}-node-socketio.service
+
+[Install]
+WantedBy=multi-user.target

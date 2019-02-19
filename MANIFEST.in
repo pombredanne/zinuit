@@ -1,0 +1,7 @@
+include *.md
+include *.py
+recursive-include zinuit *.conf
+recursive-include zinuit *.py
+recursive-include zinuit *.txt
+recursive-include zinuit *.json
+recursive-include zinuit/config/templates *

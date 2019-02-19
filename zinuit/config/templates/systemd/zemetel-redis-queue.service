@@ -1,0 +1,12 @@
+[Unit]
+Description="{{ zinuit_name }}-redis-queue"
+PartOf={{ zinuit_name }}-redis.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ redis_server }} {{ redis_queue_config }}
+StandardOutput=file:{{ zinuit_dir }}/logs/redis-queue.log
+StandardError=file:{{ zinuit_dir }}/logs/redis-queue.error.log
+WorkingDirectory={{ sites_dir }}

@@ -1,0 +1,12 @@
+[Unit]
+Description="{{ zinuit_name }}-metel-short-worker %I"
+PartOf={{ zinuit_name }}-workers.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ zinuit_cmd }} worker --queue long
+StandardOutput=file:{{ zinuit_dir }}/logs/worker.log
+StandardError=file:{{ zinuit_dir }}/logs/worker.error.log
+WorkingDirectory={{ zinuit_dir }}

@@ -1,0 +1,75 @@
+---
+  - name: Check if /tmp/.zinuit exists
+    stat:
+      path: /tmp/.zinuit
+    register: tmp_zinuit
+
+  - name: Check if zinuit_repo_path exists
+    stat:
+      path: '{{ zinuit_repo_path }}'
+    register: zinuit_repo_register
+
+  - name: move /tmp/.zinuit if it exists
+    command: 'cp -R /tmp/.zinuit {{ zinuit_repo_path }}'
+    when: tmp_zinuit.stat.exists and not zinuit_repo_register.stat.exists
+
+  - name: install zinuit
+    pip: name={{ zinuit_repo_path }} extra_args='-e'
+    become: yes
+    become_user: root
+
+  - name: Overwrite zinuit if required
+    file:
+      state: absent
+      path: "{{ zinuit_path }}"
+    when: overwrite
+
+  - name: Check whether zinuit exists
+    stat: path="{{ zinuit_path }}"
+    register: zinuit_stat
+
+  - name:  python3 zinuit init for develop
+    command: zinuit init {{ zinuit_path }} --metel-path {{ metel_repo_url }} --metel-branch {{ metel_branch }} --python {{ python }}
+    args:
+      creates: "{{ zinuit_path }}"
+    when: not zinuit_stat.stat.exists and not production
+
+  - name: python2 zinuit init for production
+    command: zinuit init {{ zinuit_path }} --metel-path {{ metel_repo_url }} --metel-branch {{ metel_branch }}
+    args:
+      creates: "{{ zinuit_path }}"
+    when: not zinuit_stat.stat.exists and production
+
+  # setup common_site_config
+  - name: setup config
+    command: zinuit setup config
+    args:
+      creates: "{{ zinuit_path }}/sites/common_site_config.json"
+      chdir: "{{ zinuit_path }}"
+
+  - include_tasks: setup_inputrc.yml
+
+  # Setup Procfile
+  - name: Setup Procfile
+    command: zinuit setup procfile
+    args:
+      creates: "{{ zinuit_path }}/Procfile"
+      chdir: "{{ zinuit_path }}"
+
+  # Setup Redis env for RQ
+  - name: Setup Redis
+    command: zinuit setup redis
+    args:
+      creates: "{{ zinuit_path }}/config/redis_socketio.conf"
+      chdir: "{{ zinuit_path }}"
+
+  # Setup an Redapple site
+  - include_tasks: setup_redapple.yml
+    when: not run_travis
+
+  # Setup Zinuit for production environment
+  - include_tasks: setup_zinuit_production.yml
+    vars:
+      zinuit_path: "/home/{{ metel_user }}/{{ zinuit_name }}"
+    when: not run_travis and production
+...

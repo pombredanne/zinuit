@@ -1,0 +1,28 @@
+---
+- name: Setup production
+  become: yes
+  become_user: root
+  command: zinuit setup production {{ metel_user }}
+  args:
+    chdir: '{{ zinuit_path }}'
+
+- name: Setup Sudoers
+  become: yes
+  become_user: root
+  command: zinuit setup sudoers {{ metel_user }}
+  args:
+    chdir: '{{ zinuit_path }}'
+
+- name: Set correct permissions on zinuit.log
+  file:
+    path: '{{ zinuit_path }}/logs/zinuit.log'
+    owner: '{{ metel_user }}'
+    group: '{{ metel_user }}'
+  become: yes
+  become_user: root
+
+- name: Restart the zinuit
+  command: zinuit restart
+  args:
+    chdir: '{{ zinuit_path }}'
+...

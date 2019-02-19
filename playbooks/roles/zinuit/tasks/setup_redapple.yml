@@ -1,0 +1,28 @@
+---
+  - name: Check if Redapple App exists
+    stat: path="{{ zinuit_path }}/apps/redapple"
+    register: app
+
+  - name: Get the Redapple app
+    command: zinuit get-app redapple {{ redapple_repo_url }} --branch {{ redapple_branch }}
+    args:
+      creates: "{{ zinuit_path }}/apps/redapple"
+      chdir: "{{ zinuit_path }}"
+    when: not app.stat.exists and not without_redapple
+
+  - name: Check whether the site already exists
+    stat: path="{{ zinuit_path }}/sites/{{ site }}"
+    register: site_folder
+
+  - name: Create a new site
+    command: "zinuit new-site {{ site }} --admin-password '{{ admin_password }}' --mariadb-root-password '{{ mysql_root_password }}'"
+    args:
+      chdir: "{{ zinuit_path }}"
+    when: not site_folder.stat.exists
+
+  - name: Install Redapple to default site
+    command: "zinuit --site {{ site }} install-app redapple"
+    args:
+      chdir: "{{ zinuit_path }}"
+    when: not without_redapple
+...

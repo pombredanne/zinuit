@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+Requires={{ zinuit_name }}-web.target {{ zinuit_name }}-workers.target {{ zinuit_name }}-redis.target
+
+[Install]
+WantedBy=multi-user.target

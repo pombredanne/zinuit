@@ -1,0 +1,27 @@
+---
+
+  - hosts: localhost
+    tasks:
+    - name: Create user
+      user:
+        name: '{{ metel_user }}'
+        generate_ssh_key: yes
+
+    - name: Set home folder perms
+      file:
+        path: '/home/{{ metel_user }}'
+        mode: 'o+rx'
+        owner: '{{ metel_user }}'
+        group: '{{ metel_user }}'
+        recurse: yes
+
+    - name: Set /tmp/.zinuit folder perms
+      file:
+        path: '{{ repo_path }}'
+        owner: '{{ metel_user }}'
+        group: '{{ metel_user }}'
+        recurse: yes
+
+    - name: Change default shell to bash
+      shell: "chsh {{ metel_user }} -s $(which bash)"
+...
