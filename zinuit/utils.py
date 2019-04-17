@@ -1,4 +1,4 @@
-import os, sys, shutil, subprocess, logging, itertools, requests, json, platform, select, pwd, grp, multiprocessing, hashlib
+import os, sys, shutil, subprocess, logging, itertools, requests, json, platform, select, pwd, grp, multiprocessing, hashlib, glob
 from distutils.spawn import find_executable
 import zinuit
 import semantic_version
@@ -556,16 +556,6 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
 
 def fix_prod_setup_perms(zinuit_path='.', metel_user=None):
 	from .config.common_site_config import get_config
-	files = [
-		"logs/web.error.log",
-		"logs/web.log",
-		"logs/workerbeat.error.log",
-		"logs/workerbeat.log",
-		"logs/worker.error.log",
-		"logs/worker.log",
-		"config/nginx.conf",
-		"config/supervisor.conf",
-	]
 
 	if not metel_user:
 		metel_user = get_config(zinuit_path).get('metel_user')
@@ -574,8 +564,9 @@ def fix_prod_setup_perms(zinuit_path='.', metel_user=None):
 		print("metel user not set")
 		sys.exit(1)
 
-	for path in files:
-		if os.path.exists(path):
+	globs = ["logs/*", "config/*"]
+	for glob_name in globs:
+		for path in glob.glob(glob_name):
 			uid = pwd.getpwnam(metel_user).pw_uid
 			gid = grp.getgrnam(metel_user).gr_gid
 			os.chown(path, uid, gid)
